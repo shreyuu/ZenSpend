@@ -1,0 +1,14 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5433,
+            "driver": "PostgreSQL",
+            "name": "ZenSpend PostgreSQL",
+            "database": "zenspend",
+            "username": "zenspend",
+            "password": "zenspend123"
+        }
+    ]
+}
