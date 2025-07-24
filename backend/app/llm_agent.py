@@ -1,11 +1,10 @@
-from langchain_community.llms import Ollama
+from langchain_ollama import OllamaLLM
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
 import re
 import json
 
 # Set up the local LLM (llama3, deepseek, etc.)
-llm = Ollama(model="llama3.1:8b")
+llm = OllamaLLM(model="llama3.1:8b")
 
 # Prompt Template
 prompt = PromptTemplate.from_template(
@@ -19,15 +18,15 @@ Respond in JSON format like {{"amount": 70, "category": "Food", "note": "Pani pu
 """
 )
 
-# Chain setup
-chain = LLMChain(llm=llm, prompt=prompt)
+# Chain setup using the newer runnable syntax
+chain = prompt | llm
 
 
 def extract_expense(user_input: str):
     # First try using LLM
     try:
         result = chain.invoke({"input": user_input})
-        parsed = extract_json_from_text(result["text"])
+        parsed = extract_json_from_text(result)
         if parsed and "amount" in parsed and "category" in parsed:
             return parsed
     except Exception as e:
