@@ -1,2 +1,2 @@
 SELECT *
-FROM transactions;
+from expenses
