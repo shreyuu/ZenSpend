@@ -48,3 +48,9 @@ def add_expense_via_chat(request: ChatExpenseRequest, db: Session = Depends(get_
 @router.get("/")
 def welcome(db: Session = Depends(get_db)):
     return {"message": "Welcome to ZenSpend API"}
+
+
+@router.get("/expenses", response_model=list[schemas.ExpenseOut])
+def get_expenses(db: Session = Depends(get_db)):
+    expenses = db.query(models.Expense).order_by(models.Expense.date.desc()).all()
+    return expenses

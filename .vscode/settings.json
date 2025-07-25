@@ -10,5 +10,7 @@
             "username": "zenspend",
             "password": "zenspend123"
         }
-    ]
+    ],
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+    "python.venvPath": "${workspaceFolder}/backend/.venv"
 }
