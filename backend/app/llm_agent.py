@@ -1,5 +1,6 @@
 from langchain_ollama import OllamaLLM
 from langchain.prompts import PromptTemplate
+from .memory import conversation_chain
 import re
 import json
 
@@ -76,3 +77,9 @@ def extract_json_from_text(text):
         return eval(text)
     except Exception:
         return None
+
+
+def chat_with_memory(user_input: str) -> str:
+    """Function to chat with memory using the conversation chain."""
+    response = conversation_chain.predict(input=user_input)
+    return response
