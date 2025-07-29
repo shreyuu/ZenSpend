@@ -98,7 +98,7 @@ Database credentials:
 ### 🧠 2. Start LLM with Ollama
 
 ```bash
-ollama run llama3
+ollama run llama3.1:8b
 ```
 
 ### 🐍 3. Run Backend

@@ -6,8 +6,8 @@ from app import models, schemas
 from app.llm_agent import extract_expense
 from pydantic import BaseModel
 from typing import Optional
-from langchain.chains import retrieval_qa
-from app.vector_store import get_vectorstore
+from langchain.chains import RetrievalQA
+from app.memory import vectorstore
 
 router = APIRouter()
 
@@ -61,11 +61,10 @@ def get_expenses(db: Session = Depends(get_db)):
 
 @router.post("/semantic-search/")
 def search_expenses(query: str):
-    vectorstore = get_vectorstore()  # Get the vectorstore instance
     retriever = vectorstore.as_retriever()
-    qa = retrieval_qa.from_chain_type(
-        llm=ChatOllama(model="llama3.1:8b"), retriever=retriever
+    qa = RetrievalQA.from_chain_type(
+        llm=ChatOllama(model="llama3.1:8b"),
+        retriever=retriever,
     )
     answer = qa.run(query)
-    return {"response": answer}
     return {"response": answer}

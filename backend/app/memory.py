@@ -13,7 +13,7 @@ load_dotenv()
 CONNECTION_STRING = os.getenv("DATABASE_URL")
 
 # Create embedding + vector store
-embedding = OllamaEmbeddings(model="llama3")
+embedding = OllamaEmbeddings(model="llama3.1:8b")
 vectorstore = PGVector(
     connection_string=CONNECTION_STRING,
     collection_name="zenspend_memory",
@@ -21,7 +21,7 @@ vectorstore = PGVector(
 )
 
 # Conversation memory chain
-llm = ChatOllama(model="llama3")
+llm = ChatOllama(model="llama3.1:8b")
 memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 conversation_chain = ConversationChain(llm=llm, verbose=True, memory=memory)
