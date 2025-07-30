@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from typing import Optional
 from langchain.chains import RetrievalQA
 from app.memory import vectorstore
+from .llm_agent import get_llm_response
 
 router = APIRouter()
 
@@ -22,6 +23,16 @@ def get_db():
 
 class ChatExpenseRequest(BaseModel):
     text: str
+
+
+@router.post("/ask")
+def ask_expense_agent(payload: dict):
+    user_input = payload.get("message")
+    if not user_input:
+        raise HTTPException(status_code=400, detail="Message not found")
+
+    response = get_llm_response(user_input)
+    return {"response": response}
 
 
 @router.post("/add-expense", response_model=schemas.ExpenseOut)
