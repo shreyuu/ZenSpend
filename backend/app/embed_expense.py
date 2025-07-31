@@ -1,8 +1,8 @@
 from .database import SessionLocal
 from .models import Expense
 from .utils import stringify_expense
-from langchain.vectorstores.pgvector import PGVector
-from langchain.embeddings import OllamaEmbeddings
+from langchain_community.vectorstores import PGVector
+from langchain_community.embeddings import OllamaEmbeddings
 from langchain.docstore.document import Document
 import os
 from dotenv import load_dotenv
@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 CONNECTION_STRING = os.getenv("DATABASE_URL")
-embedding = OllamaEmbeddings(model="llama3.1:8b")
+# embedding = OllamaEmbeddings(model="llama3.1:8b")
+embedding = OllamaEmbeddings(model="phi3:mini")  # Use a smaller model for testing
 
 vectorstore = PGVector(
     connection_string=CONNECTION_STRING,

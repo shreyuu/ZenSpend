@@ -1,26 +1,39 @@
+from multiprocessing import context
 from langchain_ollama import OllamaLLM
 from langchain.prompts import PromptTemplate
-from .memory import conversation_chain
+from .memory import conversation_chain, save_conversation, query_memory
+from langchain_core.prompts import ChatPromptTemplate
 import re
 import json
 
 # Set up the local LLM (llama3, deepseek, etc.)
-llm = OllamaLLM(model="llama3.1:8b")
+# llm = OllamaLLM(model="llama3.1:8b")
+llm = OllamaLLM(model="phi3:mini")  # Use a smaller model for testing
 
 # Prompt Template
-prompt = PromptTemplate.from_template(
-    """Extract the amount, category, and note from this user input: {input}. 
-    
-For food items, use 'Food' as the category.
-For beverages, use 'Drinks' as the category.
-If multiple items are mentioned, sum up the total amount.
-
-Respond in JSON format like {{"amount": 70, "category": "Food", "note": "Pani puri and coke"}}
-"""
+prompt_template = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "You are a helpful expense assistant. Here is the past context:\n{context}",
+        ),
+        ("human", "{input}"),
+    ]
 )
 
+
 # Chain setup using the newer runnable syntax
-chain = prompt | llm
+chain = prompt_template | llm
+
+
+def get_llm_response(user_input: str):
+    memory_docs = query_memory(user_input)
+    context = "\n".join(doc.page_content for doc in memory_docs)
+
+    response = chain.invoke({"input": user_input, "context": context})
+
+    save_conversation(user_input, response)
+    return response
 
 
 def extract_expense(user_input: str):
