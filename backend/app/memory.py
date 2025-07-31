@@ -14,7 +14,8 @@ load_dotenv()
 CONNECTION_STRING = os.getenv("DATABASE_URL")
 
 # Create embedding + vector store
-embedding = OllamaEmbeddings(model="llama3.1:8b")
+# embedding = OllamaEmbeddings(model="llama3.1:8b")
+embedding = OllamaEmbeddings(model="phi3:mini")  # Use a smaller model for testing
 vectorstore = PGVector(
     connection_string=CONNECTION_STRING,
     collection_name="memory_store",
@@ -35,7 +36,8 @@ def query_memory(query: str):
 
 
 # Conversation memory chain
-llm = ChatOllama(model="llama3.1:8b")
+# llm = ChatOllama(model="llama3.1:8b")
+llm = ChatOllama(model="phi3:mini")  # Use a smaller model for testing
 memory = ConversationBufferMemory(memory_key="history", return_messages=True)
 
 conversation_chain = ConversationChain(llm=llm, verbose=True, memory=memory)

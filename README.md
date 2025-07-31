@@ -99,6 +99,8 @@ Database credentials:
 
 ```bash
 ollama run llama3.1:8b
+# or use a smaller model for testing
+ollama run phi3:mini
 ```
 
 ### 🐍 3. Run Backend

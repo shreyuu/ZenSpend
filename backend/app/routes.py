@@ -74,7 +74,8 @@ def get_expenses(db: Session = Depends(get_db)):
 def search_expenses(query: str):
     retriever = vectorstore.as_retriever()
     qa = RetrievalQA.from_chain_type(
-        llm=ChatOllama(model="llama3.1:8b"),
+        # llm=ChatOllama(model="llama3.1:8b"),
+        llm=ChatOllama(model="phi3:mini"),  # Use a smaller model for testing
         retriever=retriever,
     )
     answer = qa.run(query)

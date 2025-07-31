@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 CONNECTION_STRING = os.getenv("DATABASE_URL")
-embedding = OllamaEmbeddings(model="llama3.1:8b")
+# embedding = OllamaEmbeddings(model="llama3.1:8b")
+embedding = OllamaEmbeddings(model="phi3:mini")  # Use a smaller model for testing
 
 vectorstore = PGVector(
     connection_string=CONNECTION_STRING,

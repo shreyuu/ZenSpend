@@ -7,7 +7,8 @@ import re
 import json
 
 # Set up the local LLM (llama3, deepseek, etc.)
-llm = OllamaLLM(model="llama3.1:8b")
+# llm = OllamaLLM(model="llama3.1:8b")
+llm = OllamaLLM(model="phi3:mini")  # Use a smaller model for testing
 
 # Prompt Template
 prompt_template = ChatPromptTemplate.from_messages(
