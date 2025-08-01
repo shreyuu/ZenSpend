@@ -1,2 +1,2 @@
 SELECT *
-from expenses
+FROM expenses
