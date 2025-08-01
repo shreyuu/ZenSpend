@@ -1,8 +1,8 @@
 from .database import SessionLocal
 from .models import Expense
 from .utils import stringify_expense
-from langchain_community.vectorstores import PGVector
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_postgres import PGVector
+from langchain_ollama import OllamaEmbeddings
 from langchain.docstore.document import Document
 import os
 from dotenv import load_dotenv
@@ -17,6 +17,7 @@ vectorstore = PGVector(
     connection_string=CONNECTION_STRING,
     collection_name="expense_embeddings",
     embedding_function=embedding,
+    use_jsonb=True,
 )
 
 
