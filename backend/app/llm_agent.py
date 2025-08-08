@@ -2,6 +2,9 @@ from langchain_ollama import ChatOllama
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools import Tool
 from langchain.agents import create_react_agent, AgentExecutor
+from langchain.schema import HumanMessage, AIMessage
+from langchain.agents.format_scratchpad import format_log_to_messages
+from langchain.agents.output_parsers import ReActSingleInputOutputParser
 from .memory import save_conversation, query_memory
 import re
 import json
@@ -141,6 +144,7 @@ tools = [
 tool_names = [tool.name for tool in tools]
 tool_descriptions = "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
 
+# Use a simpler prompt template without the MessagesPlaceholder
 prompt = ChatPromptTemplate.from_messages(
     [
         (
@@ -169,15 +173,19 @@ Final Answer: the final answer to the original question
 """,
         ),
         ("human", "{input}"),
-        MessagesPlaceholder(variable_name="agent_scratchpad"),
     ]
 )
 
 # Partial-fill the required fields
 prompt = prompt.partial(tool_names=", ".join(tool_names), tools=tool_descriptions)
 
-# Create the ReAct agent and executor
-agent = create_react_agent(llm, tools, prompt)
+# Create the ReAct agent and executor with proper scratchpad handling
+agent = create_react_agent(
+    llm, 
+    tools, 
+    prompt,
+    output_parser=ReActSingleInputOutputParser()
+)
 agent_executor = AgentExecutor(
     agent=agent,
     tools=tools,
@@ -198,10 +206,8 @@ def get_llm_response(user_input: str) -> str:
         if context:
             enhanced_input = f"Context from previous conversations:\n{context}\n\nUser input: {user_input}"
 
-        # Execute the agent with proper scratchpad format
-        response = agent_executor.invoke(
-            {"input": enhanced_input, "agent_scratchpad": []}  # ✅ Important fix
-        )
+        # Execute the agent with proper input format
+        response = agent_executor.invoke({"input": enhanced_input})
         output = response["output"]
 
         # Save conversation
@@ -215,11 +221,9 @@ def get_llm_response(user_input: str) -> str:
 
 def extract_expense(user_input: str) -> Dict[str, Any]:
     try:
+        # Remove agent_scratchpad from input - let the agent handle it internally
         response = agent_executor.invoke(
-            {
-                "input": f"Extract expense details from this text: {user_input}",
-                "agent_scratchpad": [],
-            }
+            {"input": f"Extract expense details from this text: {user_input}"}
         )
         match = re.search(r"\{.*\}", response["output"], re.DOTALL)
         if match:
