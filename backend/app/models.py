@@ -8,5 +8,5 @@ class Expense(Base):
     id = Column(Integer, primary_key=True, index=True)
     amount = Column(Float, nullable=False)
     category = Column(String, nullable=False)
-    note = Column(String)
+    description = Column(String)
     date = Column(DateTime(timezone=True), server_default=func.now())

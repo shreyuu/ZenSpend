@@ -1,20 +1,18 @@
-from langchain_ollama import OllamaLLM
-from langchain.prompts import ChatPromptTemplate
+from langchain_ollama import ChatOllama
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools import Tool
-from langchain.agents import initialize_agent, AgentExecutor
-from langchain.agents.format_scratchpad import format_to_openai_function_messages
-from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
+from langchain.agents import create_react_agent, AgentExecutor
 from langchain.memory import ConversationBufferMemory
 from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
 from .memory import save_conversation, query_memory
 import re
 import json
+from datetime import date, datetime
 from typing import Dict, Any
 from pydantic import BaseModel, Field
-from datetime import date
 
-# Set up the local LLM
-llm = OllamaLLM(model="phi3:mini")  # Use a smaller model for testing
+# Set up the local LLM (chat model)
+llm = ChatOllama(model="phi3:mini", temperature=0)
 
 
 # Define tool schemas
@@ -37,15 +35,94 @@ class ExpenseQueryInput(BaseModel):
     category: str = Field(default=None, description="Optional category to filter by")
 
 
-# Tool functions
+# Tool functions (accept flexible, non-JSON inputs too)
+MONTHS = {
+    m.lower(): i
+    for i, m in enumerate(
+        [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ],
+        start=1,
+    )
+}
+
+
+def _parse_flexible_input(input_str: str) -> Dict[str, Any]:
+    # Try JSON first
+    try:
+        return json.loads(input_str)
+    except Exception:
+        pass
+
+    # key=value pairs
+    kv = {}
+    for part in re.split(r"[;,]\s*|\n", input_str):
+        if "=" in part:
+            k, v = part.split("=", 1)
+            kv[k.strip().lower()] = v.strip()
+    if kv:
+        return kv
+
+    # Fallback heuristics
+    out: Dict[str, Any] = {}
+
+    # amount (supports ₹ or Rs)
+    amt = re.search(r"(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)", input_str, flags=re.IGNORECASE)
+    if amt:
+        out["amount"] = float(amt.group(1))
+
+    # category (very simple)
+    lower = input_str.lower()
+    if any(w in lower for w in ["grocery", "groceries", "supermarket"]):
+        out["category"] = "Groceries"
+    elif any(w in lower for w in ["food", "lunch", "dinner", "breakfast"]):
+        out["category"] = "Food"
+    elif any(w in lower for w in ["transport", "uber", "ola", "taxi", "bus"]):
+        out["category"] = "Transport"
+
+    # date like "July 27" or "27 July"
+    m1 = re.search(r"\b([A-Za-z]+)\s+(\d{1,2})\b", input_str)
+    m2 = re.search(r"\b(\d{1,2})\s+([A-Za-z]+)\b", input_str)
+    year = date.today().year
+    if m1 and m1.group(1).lower() in MONTHS:
+        mm = MONTHS[m1.group(1).lower()]
+        dd = int(m1.group(2))
+        out["date"] = f"{year:04d}-{mm:02d}-{dd:02d}"
+    elif m2 and m2.group(2).lower() in MONTHS:
+        mm = MONTHS[m2.group(2).lower()]
+        dd = int(m2.group(1))
+        out["date"] = f"{year:04d}-{mm:02d}-{dd:02d}"
+
+    return out
+
+
 def add_expense(input_json: str) -> str:
     """Add a new expense to the database."""
     try:
-        # Parse the input to validate
-        data = ExpenseCreateInput.parse_raw(input_json)
+        # Parse input (JSON or free text)
+        raw = _parse_flexible_input(input_json)
+
+        # Defaults
+        if "date" not in raw or not raw["date"]:
+            raw["date"] = str(date.today())
+        if "description" not in raw:
+            raw["description"] = None
+
+        # Validate via Pydantic
+        data = ExpenseCreateInput(**raw)
 
         # Here you would call your database function
-        # For now, just return a confirmation
         return f"Successfully added expense: {data.amount} on {data.category} ({data.description}) on {data.date}"
     except Exception as e:
         return f"Error adding expense: {str(e)}"
@@ -54,11 +131,10 @@ def add_expense(input_json: str) -> str:
 def query_expenses(input_json: str) -> str:
     """Query expenses from the database."""
     try:
-        # Parse the input to validate
-        data = ExpenseQueryInput.parse_raw(input_json)
+        raw = _parse_flexible_input(input_json)
+        data = ExpenseQueryInput(**raw)
 
         # Here you would query your database
-        # For now, just return a confirmation
         return f"Querying expenses from {data.start_date} to {data.end_date} in category {data.category or 'all'}"
     except Exception as e:
         return f"Error querying expenses: {str(e)}"
@@ -69,40 +145,53 @@ tools = [
     Tool.from_function(
         func=add_expense,
         name="add_expense",
-        description="Add a new expense to the database",
+        description="Add a new expense to the database. Provide amount, category, date (YYYY-MM-DD), and optional description.",
         args_schema=ExpenseCreateInput,
     ),
     Tool.from_function(
         func=query_expenses,
         name="query_expenses",
-        description="Query expenses from the database",
+        description="Query expenses from the database. Provide start_date, end_date (YYYY-MM-DD), and optional category.",
         args_schema=ExpenseQueryInput,
     ),
 ]
 
 # Set up agent
-system_message = """You are a helpful expense tracking assistant. 
+system_message = """You are a helpful expense tracking assistant.
 You help users add expenses to their tracker and query information about their spending.
 When a user mentions spending money, help them add it as an expense.
-When they ask about their spending, help them query their expenses."""
+When they ask about their spending, help them query their expenses.
+If the user provides a date like 'July 27', assume the year is the current year unless specified, and format as YYYY-MM-DD.
 
+IMPORTANT: When using tools, follow this exact format without any JSON code blocks or markdown formatting:
+Action: <tool_name>
+Action Input: <tool_input>
+"""
+
+# Get tool names and descriptions for the prompt
+tool_names = [tool.name for tool in tools]
+tool_descriptions = "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
+
+# Create the prompt template
 prompt = ChatPromptTemplate.from_messages(
-    [("system", system_message), ("human", "{input}"), ("ai", "{agent_scratchpad}")]
+    [
+        ("system", system_message + "\n\nAvailable tools:\n{tools}"),
+        ("human", "{input}"),
+        ("human", "{agent_scratchpad}"),
+    ]
 )
 
-agent = (
-    {
-        "input": lambda x: x["input"],
-        "agent_scratchpad": lambda x: format_to_openai_function_messages(
-            x["intermediate_steps"]
-        ),
-    }
-    | prompt
-    | llm
-    | OpenAIFunctionsAgentOutputParser()
-)
+# Partial the prompt with tools info
+prompt = prompt.partial(tools=tool_descriptions)
 
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+# Build the agent
+agent = create_react_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    verbose=True,
+    handle_parsing_errors=True,  # Handle parsing errors
+)
 
 
 def get_llm_response(user_input: str) -> str:
@@ -163,7 +252,7 @@ def extract_expense(user_input: str) -> Dict[str, Any]:
                     category = cat
                     break
 
-            return {"amount": amount, "category": category, "note": user_input}
+            return {"amount": amount, "category": category, "description": user_input}
     except Exception as e:
         print(f"Error extracting expense: {e}")
 

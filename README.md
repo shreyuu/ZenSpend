@@ -145,7 +145,7 @@ Returns:
 {
 "amount": 300,
 "category": "books",
-"note": "snacks",
+"description": "snacks",
 ...
 }
 
