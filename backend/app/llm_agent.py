@@ -2,12 +2,10 @@ from langchain_ollama import ChatOllama
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools import Tool
 from langchain.agents import create_react_agent, AgentExecutor
-from langchain.memory import ConversationBufferMemory
-from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
 from .memory import save_conversation, query_memory
 import re
 import json
-from datetime import date, datetime
+from datetime import date
 from typing import Dict, Any
 from pydantic import BaseModel, Field
 
@@ -59,13 +57,11 @@ MONTHS = {
 
 
 def _parse_flexible_input(input_str: str) -> Dict[str, Any]:
-    # Try JSON first
     try:
         return json.loads(input_str)
     except Exception:
         pass
 
-    # key=value pairs
     kv = {}
     for part in re.split(r"[;,]\s*|\n", input_str):
         if "=" in part:
@@ -74,15 +70,12 @@ def _parse_flexible_input(input_str: str) -> Dict[str, Any]:
     if kv:
         return kv
 
-    # Fallback heuristics
     out: Dict[str, Any] = {}
 
-    # amount (supports ₹ or Rs)
     amt = re.search(r"(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)", input_str, flags=re.IGNORECASE)
     if amt:
         out["amount"] = float(amt.group(1))
 
-    # category (very simple)
     lower = input_str.lower()
     if any(w in lower for w in ["grocery", "groceries", "supermarket"]):
         out["category"] = "Groceries"
@@ -91,7 +84,6 @@ def _parse_flexible_input(input_str: str) -> Dict[str, Any]:
     elif any(w in lower for w in ["transport", "uber", "ola", "taxi", "bus"]):
         out["category"] = "Transport"
 
-    # date like "July 27" or "27 July"
     m1 = re.search(r"\b([A-Za-z]+)\s+(\d{1,2})\b", input_str)
     m2 = re.search(r"\b(\d{1,2})\s+([A-Za-z]+)\b", input_str)
     year = date.today().year
@@ -108,33 +100,22 @@ def _parse_flexible_input(input_str: str) -> Dict[str, Any]:
 
 
 def add_expense(input_json: str) -> str:
-    """Add a new expense to the database."""
     try:
-        # Parse input (JSON or free text)
         raw = _parse_flexible_input(input_json)
-
-        # Defaults
         if "date" not in raw or not raw["date"]:
             raw["date"] = str(date.today())
         if "description" not in raw:
             raw["description"] = None
-
-        # Validate via Pydantic
         data = ExpenseCreateInput(**raw)
-
-        # Here you would call your database function
         return f"Successfully added expense: {data.amount} on {data.category} ({data.description}) on {data.date}"
     except Exception as e:
         return f"Error adding expense: {str(e)}"
 
 
 def query_expenses(input_json: str) -> str:
-    """Query expenses from the database."""
     try:
         raw = _parse_flexible_input(input_json)
         data = ExpenseQueryInput(**raw)
-
-        # Here you would query your database
         return f"Querying expenses from {data.start_date} to {data.end_date} in category {data.category or 'all'}"
     except Exception as e:
         return f"Error querying expenses: {str(e)}"
@@ -156,41 +137,52 @@ tools = [
     ),
 ]
 
-# Set up agent
-system_message = """You are a helpful expense tracking assistant.
+# Create ReAct agent prompt with required variables
+tool_names = [tool.name for tool in tools]
+tool_descriptions = "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """You are a helpful expense tracking assistant.
 You help users add expenses to their tracker and query information about their spending.
 When a user mentions spending money, help them add it as an expense.
 When they ask about their spending, help them query their expenses.
 If the user provides a date like 'July 27', assume the year is the current year unless specified, and format as YYYY-MM-DD.
 
-IMPORTANT: When using tools, follow this exact format without any JSON code blocks or markdown formatting:
-Action: <tool_name>
-Action Input: <tool_input>
-"""
+You can use the following tools:
 
-# Get tool names and descriptions for the prompt
-tool_names = [tool.name for tool in tools]
-tool_descriptions = "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
+{tools}
 
-# Create the prompt template
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", system_message + "\n\nAvailable tools:\n{tools}"),
+Use this format when reasoning and calling tools:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat)
+Thought: I now know the final answer
+Final Answer: the final answer to the original question
+""",
+        ),
         ("human", "{input}"),
-        ("human", "{agent_scratchpad}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad"),
     ]
 )
 
-# Partial the prompt with tools info
-prompt = prompt.partial(tools=tool_descriptions)
+# Partial-fill the required fields
+prompt = prompt.partial(tool_names=", ".join(tool_names), tools=tool_descriptions)
 
-# Build the agent
+# Create the ReAct agent and executor
 agent = create_react_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(
     agent=agent,
     tools=tools,
     verbose=True,
-    handle_parsing_errors=True,  # Handle parsing errors
+    handle_parsing_errors=True,
 )
 
 
@@ -206,8 +198,10 @@ def get_llm_response(user_input: str) -> str:
         if context:
             enhanced_input = f"Context from previous conversations:\n{context}\n\nUser input: {user_input}"
 
-        # Execute the agent
-        response = agent_executor.invoke({"input": enhanced_input})
+        # Execute the agent with proper scratchpad format
+        response = agent_executor.invoke(
+            {"input": enhanced_input, "agent_scratchpad": []}  # ✅ Important fix
+        )
         output = response["output"]
 
         # Save conversation
@@ -220,28 +214,22 @@ def get_llm_response(user_input: str) -> str:
 
 
 def extract_expense(user_input: str) -> Dict[str, Any]:
-    """Extract expense details from natural language."""
     try:
-        # Use the agent to process the input
         response = agent_executor.invoke(
-            {"input": f"Extract expense details from this text: {user_input}"}
+            {
+                "input": f"Extract expense details from this text: {user_input}",
+                "agent_scratchpad": [],
+            }
         )
-
-        # Try to extract structured data from the response
-        # This is a simplified approach - in practice you'd want to use the tool outputs
         match = re.search(r"\{.*\}", response["output"], re.DOTALL)
         if match:
             try:
                 return json.loads(match.group(0))
             except:
                 pass
-
-        # Fallback: Basic regex extraction
         amount_match = re.search(r"(\d+)", user_input)
         if amount_match:
             amount = float(amount_match.group(1))
-
-            # Very basic category detection
             category = "Miscellaneous"
             for keyword, cat in [
                 (["food", "lunch", "dinner", "breakfast"], "Food"),
@@ -251,9 +239,7 @@ def extract_expense(user_input: str) -> Dict[str, Any]:
                 if any(k in user_input.lower() for k in keyword):
                     category = cat
                     break
-
             return {"amount": amount, "category": category, "description": user_input}
     except Exception as e:
         print(f"Error extracting expense: {e}")
-
     return None
