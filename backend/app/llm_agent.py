@@ -173,6 +173,7 @@ Final Answer: the final answer to the original question
 """,
         ),
         ("human", "{input}"),
+        ("ai", "{agent_scratchpad}"),  # Add this line for agent_scratchpad
     ]
 )
 
@@ -181,10 +182,7 @@ prompt = prompt.partial(tool_names=", ".join(tool_names), tools=tool_description
 
 # Create the ReAct agent and executor with proper scratchpad handling
 agent = create_react_agent(
-    llm, 
-    tools, 
-    prompt,
-    output_parser=ReActSingleInputOutputParser()
+    llm, tools, prompt, output_parser=ReActSingleInputOutputParser()
 )
 agent_executor = AgentExecutor(
     agent=agent,
