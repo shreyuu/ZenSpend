@@ -241,7 +241,14 @@ def extract_expense(user_input: str) -> Dict[str, Any]:
                 if any(k in user_input.lower() for k in keyword):
                     category = cat
                     break
-            return {"amount": amount, "category": category, "description": user_input}
+
+            # Always add the current date to prevent null date errors
+            return {
+                "amount": amount,
+                "category": category,
+                "description": user_input,
+                "date": date.today(),
+            }
     except Exception as e:
         print(f"Error extracting expense: {e}")
     return None
