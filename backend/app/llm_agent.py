@@ -6,9 +6,9 @@ from langchain.schema import HumanMessage, AIMessage
 from langchain.agents.format_scratchpad import format_log_to_messages
 from langchain.agents.output_parsers import ReActSingleInputOutputParser
 from .memory import save_conversation, query_memory
+from datetime import date, timedelta
 import re
 import json
-from datetime import date
 from typing import Dict, Any
 from pydantic import BaseModel, Field
 
@@ -229,25 +229,45 @@ def extract_expense(user_input: str) -> Dict[str, Any]:
                 return json.loads(match.group(0))
             except:
                 pass
+
+        # Extract amount
         amount_match = re.search(r"(\d+)", user_input)
         if amount_match:
             amount = float(amount_match.group(1))
+
+            # Extract category
             category = "Miscellaneous"
-            for keyword, cat in [
-                (["food", "lunch", "dinner", "breakfast"], "Food"),
-                (["transport", "uber", "ola", "taxi", "bus"], "Transport"),
-                (["movie", "entertainment", "show"], "Entertainment"),
-            ]:
-                if any(k in user_input.lower() for k in keyword):
-                    category = cat
+            category_map = {
+                "food": ["food", "lunch", "dinner", "breakfast", "restaurant", "meal"],
+                "transport": ["transport", "uber", "ola", "taxi", "bus", "travel"],
+                "entertainment": ["movie", "entertainment", "show", "concert"],
+                "shopping": ["shopping", "clothes", "dress", "shirt"],
+                "books": ["book", "books", "novel", "textbook"],
+                "groceries": ["groceries", "grocery", "supermarket"],
+            }
+
+            for cat, keywords in category_map.items():
+                if any(keyword in user_input.lower() for keyword in keywords):
+                    category = cat.capitalize()
                     break
 
-            # Always add the current date to prevent null date errors
+            # Extract date with relative references
+            expense_date = date.today()  # Default to today
+
+            # Handle relative date references
+            if "yesterday" in user_input.lower():
+                expense_date = date.today() - timedelta(days=1)
+            elif "last week" in user_input.lower():
+                expense_date = date.today() - timedelta(days=7)
+            elif "last month" in user_input.lower():
+                # Approximate last month as 30 days ago
+                expense_date = date.today() - timedelta(days=30)
+
             return {
                 "amount": amount,
                 "category": category,
                 "description": user_input,
-                "date": date.today(),
+                "date": expense_date,
             }
     except Exception as e:
         print(f"Error extracting expense: {e}")
