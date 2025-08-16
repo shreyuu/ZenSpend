@@ -11,8 +11,6 @@ from langchain_core.chat_history import InMemoryChatMessageHistory
 from sqlalchemy import create_engine
 
 import os
-
-# Load environment
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,14 +18,15 @@ load_dotenv()
 CONNECTION_STRING = os.getenv("DATABASE_URL")
 engine = create_engine(CONNECTION_STRING)
 
-# Create embedding + vector store
-# embedding = OllamaEmbeddings(model="llama3.1:8b")
-embedding = OllamaEmbeddings(model="phi3:mini")  # Use a smaller model for testing
+embedding = OllamaEmbeddings(model="phi3:mini")
+
+# Let PGVector create tables with proper schema
 vectorstore = PGVector(
-    embedding,
+    embeddings=embedding,
     connection=engine,
     collection_name="memory_store",
     use_jsonb=True,
+    pre_delete_collection=False,
 )
 
 
@@ -36,6 +35,7 @@ def save_conversation(user_msg: str, ai_msg: str):
         Document(page_content=user_msg, metadata={"role": "user"}),
         Document(page_content=ai_msg, metadata={"role": "ai"}),
     ]
+    # Let PGVector handle ID generation automatically
     vectorstore.add_documents(docs)
 
 
@@ -43,13 +43,9 @@ def query_memory(query: str):
     return vectorstore.similarity_search(query, k=3)
 
 
-# Conversation memory chain
-llm = ChatOllama(model="phi3:mini")  # Use a smaller model for testing
-
-# Setup message history
+llm = ChatOllama(model="phi3:mini")
 chat_history = InMemoryChatMessageHistory()
 
-# Create a modern LangChain prompt with history
 prompt = ChatPromptTemplate.from_messages(
     [
         ("system", "You are a helpful AI assistant for tracking expenses."),
@@ -59,20 +55,15 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 
-# Create a simple chain
 def get_chat_chain():
     chain = prompt | llm | StrOutputParser()
-
-    # Wrap with message history handler
     chain_with_history = RunnableWithMessageHistory(
         chain,
-        lambda session_id: chat_history,  # Return the same history for all sessions
+        lambda session_id: chat_history,
         input_messages_key="input",
         history_messages_key="chat_history",
     )
-
     return chain_with_history
 
 
-# Replace the conversation_chain variable
 conversation_chain = get_chat_chain()
