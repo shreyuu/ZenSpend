@@ -10,14 +10,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 CONNECTION_STRING = os.getenv("DATABASE_URL")
-# embedding = OllamaEmbeddings(model="llama3.1:8b")
-embedding = OllamaEmbeddings(model="phi3:mini")  # Use a smaller model for testing
+embedding = OllamaEmbeddings(model="phi3:mini")
 
+# Let PGVector create tables with proper schema
 vectorstore = PGVector(
-    connection_string=CONNECTION_STRING,
+    embeddings=embedding,
+    connection=CONNECTION_STRING,
     collection_name="expense_embeddings",
-    embedding_function=embedding,
     use_jsonb=True,
+    pre_delete_collection=False,  # Don't delete existing data
 )
 
 
@@ -28,6 +29,7 @@ def embed_expenses():
         Document(page_content=stringify_expense(exp), metadata={"id": exp.id})
         for exp in expenses
     ]
+    # Use add_documents without explicit IDs to avoid conflicts
     vectorstore.add_documents(docs)
     print(f"✅ Embedded {len(docs)} expenses.")
 
