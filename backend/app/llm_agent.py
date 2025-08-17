@@ -5,12 +5,30 @@ from langchain.agents import create_react_agent, AgentExecutor
 from langchain.schema import HumanMessage, AIMessage
 from langchain.agents.format_scratchpad import format_log_to_messages
 from langchain.agents.output_parsers import ReActSingleInputOutputParser
+from langchain.output_parsers import OutputFixingParser
+from langchain_core.output_parsers import PydanticOutputParser
 from .memory import save_conversation, query_memory
 from datetime import date, timedelta
 import re
 import json
 from typing import Dict, Any
 from pydantic import BaseModel, Field
+
+# Define the input schema for creating an expense
+FORMAT_INSTRUCTIONS = """
+STRICTLY follow this format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+CRITICAL: You MUST include "Action:" immediately after "Thought:" when using tools.
+"""
 
 # Set up the local LLM (chat model)
 llm = ChatOllama(model="phi3:mini", temperature=0)
@@ -124,6 +142,17 @@ def query_expenses(input_json: str) -> str:
         return f"Error querying expenses: {str(e)}"
 
 
+def add_expense_tool(amount: int, category: str, date: str):
+    """Add an expense to the system"""
+    try:
+        # Your expense addition logic here
+        expense_data = {"amount": amount, "category": category, "date": date}
+        # Add to database/storage
+        return f"Successfully added expense: ₹{amount} for {category} on {date}"
+    except Exception as e:
+        return f"Error adding expense: {str(e)}"
+
+
 # Define tools
 tools = [
     Tool.from_function(
@@ -138,13 +167,18 @@ tools = [
         description="Query expenses from the database. Provide start_date, end_date (YYYY-MM-DD), and optional category.",
         args_schema=ExpenseQueryInput,
     ),
+    Tool(
+        name="add_expense_tool",
+        func=add_expense_tool,
+        description="Add an expense. Input should be: amount (number), category (string), date (YYYY-MM-DD format)",
+    ),
 ]
 
 # Create ReAct agent prompt with required variables
 tool_names = [tool.name for tool in tools]
 tool_descriptions = "\n".join([f"{tool.name}: {tool.description}" for tool in tools])
 
-# Use a simpler prompt template without the MessagesPlaceholder
+# Use the FORMAT_INSTRUCTIONS in the prompt template
 prompt = ChatPromptTemplate.from_messages(
     [
         (
@@ -159,36 +193,32 @@ You can use the following tools:
 
 {tools}
 
-Use this format when reasoning and calling tools:
-
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-
-Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat)
-Thought: I now know the final answer
-Final Answer: the final answer to the original question
+{format_instructions}
 """,
         ),
         ("human", "{input}"),
-        ("ai", "{agent_scratchpad}"),  # Add this line for agent_scratchpad
+        ("ai", "{agent_scratchpad}"),
     ]
 )
 
 # Partial-fill the required fields
-prompt = prompt.partial(tool_names=", ".join(tool_names), tools=tool_descriptions)
+prompt = prompt.partial(
+    tool_names=", ".join(tool_names),
+    tools=tool_descriptions,
+    format_instructions=FORMAT_INSTRUCTIONS.format(tool_names=", ".join(tool_names)),
+)
 
 # Create the ReAct agent and executor with proper scratchpad handling
 agent = create_react_agent(
     llm, tools, prompt, output_parser=ReActSingleInputOutputParser()
 )
-agent_executor = AgentExecutor(
+agent_executor = AgentExecutor.from_agent_and_tools(
     agent=agent,
     tools=tools,
     verbose=True,
     handle_parsing_errors=True,
+    max_iterations=10,
+    max_execution_time=60,
 )
 
 
@@ -217,6 +247,13 @@ def get_llm_response(user_input: str) -> str:
         return f"I'm sorry, I encountered an error: {str(e)}"
 
 
+# Create a Pydantic parser for expense data
+expense_parser = PydanticOutputParser(pydantic_object=ExpenseCreateInput)
+
+# Wrap with fixing capability for more robust parsing
+fixing_parser = OutputFixingParser.from_llm(parser=expense_parser, llm=llm)
+
+
 def extract_expense(user_input: str) -> Dict[str, Any]:
     try:
         # Remove agent_scratchpad from input - let the agent handle it internally
@@ -228,7 +265,11 @@ def extract_expense(user_input: str) -> Dict[str, Any]:
             try:
                 return json.loads(match.group(0))
             except:
-                pass
+                # Try to fix the output with our fixing parser
+                try:
+                    return fixing_parser.parse(response["output"])
+                except:
+                    pass
 
         # Extract amount
         amount_match = re.search(r"(\d+)", user_input)
