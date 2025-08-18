@@ -3,12 +3,15 @@ from langchain_ollama import ChatOllama
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app import models, schemas
-from app.llm_agent import extract_expense
+from app.llm_agent import extract_expense, test_agent_with_simple_query
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from langchain.chains import RetrievalQA
 from app.memory import vectorstore
 from .llm_agent import get_llm_response
+import logging
+
+logger = logging.getLogger("api_routes")
 
 router = APIRouter()
 
@@ -25,14 +28,35 @@ class ChatExpenseRequest(BaseModel):
     text: str
 
 
+class DebugRequest(BaseModel):
+    query: str
+
+
 @router.post("/ask")
 def ask_expense_agent(payload: dict):
     user_input = payload.get("message")
     if not user_input:
         raise HTTPException(status_code=400, detail="Message not found")
 
+    logger.info(f"API request: /ask with message: {user_input[:50]}...")
     response = get_llm_response(user_input)
     return {"response": response}
+
+
+@router.post("/debug/test-agent")
+def debug_agent(request: DebugRequest):
+    """Endpoint for testing agent behavior with a specific query."""
+    logger.info(f"Debug request with query: {request.query}")
+    response = test_agent_with_simple_query(request.query)
+    return {"query": request.query, "response": response}
+
+
+@router.post("/debug/test-parser")
+def debug_parser(request: DebugRequest):
+    """Endpoint for testing expense extraction with a specific query."""
+    logger.info(f"Debug parser request with query: {request.query}")
+    parsed = extract_expense(request.query)
+    return {"query": request.query, "parsed": parsed}
 
 
 @router.post("/add-expense", response_model=schemas.ExpenseOut)
