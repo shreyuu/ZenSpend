@@ -15,6 +15,7 @@ import logging
 import sys
 from typing import Dict, Any
 from pydantic import BaseModel, Field
+from langchain.callbacks.base import BaseCallbackHandler
 
 # Set up logging for debugging
 logging.basicConfig(
@@ -296,7 +297,7 @@ prompt = prompt.partial(
 logger.info("Creating ReAct agent with structured prompt")
 
 
-class DebugCallbackHandler:
+class DebugCallbackHandler(BaseCallbackHandler):
     def on_llm_start(self, serialized, prompts, **kwargs):
         logger.debug(f"LLM PROMPT:\n{prompts[0]}")
 
