@@ -25,3 +25,111 @@
 2025-08-17 23:57:46,718 [INFO] Initialized Ollama LLM with model: phi3:mini
 2025-08-17 23:57:46,720 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
 2025-08-17 23:57:46,720 [INFO] Creating ReAct agent with structured prompt
+2025-08-19 23:24:03,040 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-19 23:24:03,041 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-19 23:24:03,042 [INFO] Creating ReAct agent with structured prompt2025-08-19 23:27:19,425 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-19 23:27:19,427 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-19 23:27:19,427 [INFO] Creating ReAct agent with structured prompt
+2025-08-19 23:27:19,428 [INFO] Initialized output fixing parser for expense data
+2025-08-19 23:27:28,404 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-19 23:27:28,406 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-19 23:27:28,406 [INFO] Creating ReAct agent with structured prompt
+2025-08-19 23:27:28,406 [INFO] Initialized output fixing parser for expense data
+2025-08-19 23:28:57,733 [INFO] API request: /ask with message: i spent 381 rupees for bench on 28 july 2025...
+2025-08-19 23:28:57,734 [INFO] Processing user input: i spent 381 rupees for bench on 28 july 2025
+2025-08-19 23:28:57,741 [DEBUG] connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+2025-08-19 23:28:57,742 [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x112649e50>
+2025-08-19 23:28:57,742 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-19 23:28:57,742 [DEBUG] send_request_headers.complete
+2025-08-19 23:28:57,742 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-19 23:28:57,742 [DEBUG] send_request_body.complete
+2025-08-19 23:28:57,742 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-19 23:29:00,757 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Tue, 19 Aug 2025 17:59:00 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-19 23:29:00,772 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/embed "HTTP/1.1 200 OK"
+2025-08-19 23:29:00,841 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-19 23:29:01,199 [DEBUG] receive_response_body.complete
+2025-08-19 23:29:01,201 [DEBUG] response_closed.started
+2025-08-19 23:29:01,201 [DEBUG] response_closed.complete
+2025-08-19 23:29:01,506 [DEBUG] Retrieved context: i spent 248 days for table on 23 july 2025
+Please confirm your category (e.g., Furniture) or let me know if you would like us to default the category for a table purchase and ensure that today's date ...
+2025-08-19 23:29:01,507 [DEBUG] Enhanced input with context
+2025-08-19 23:29:01,507 [DEBUG] Executing agent with input: Context from previous conversations:
+i spent 248 days for table on 23 july 2025
+Please confirm your category (e.g., Furniture) or let me know if you would like us to default the category for a table purchase and ensure that today's date is provided in YYYY-MM-DD format before I can add this expense as an entry into our system tool 'add_expense'.
+Agent stopped due to iteration limit or time limit.
+
+User input: i spent 381 rupees for bench on 28 july 2025
+2025-08-19 23:29:01,553 [WARNING] Error in DebugCallbackHandler.on_chain_start callback: TypeError("'NoneType' object is not subscriptable")
+2025-08-19 23:29:01,653 [DEBUG] connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+2025-08-19 23:29:01,654 [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x11264b750>
+2025-08-19 23:29:01,654 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-19 23:29:01,654 [DEBUG] send_request_headers.complete
+2025-08-19 23:29:01,654 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-19 23:29:01,654 [DEBUG] send_request_body.complete
+2025-08-19 23:29:01,654 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-19 23:29:19,124 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/x-ndjson'), (b'Date', b'Tue, 19 Aug 2025 17:59:19 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-19 23:29:19,131 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+2025-08-19 23:29:19,132 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-19 23:29:36,344 [DEBUG] receive_response_body.complete
+2025-08-19 23:29:36,347 [DEBUG] response_closed.started
+2025-08-19 23:29:36,347 [DEBUG] response_closed.complete
+2025-08-19 23:29:36,358 [DEBUG] AGENT ACTION: tool='query_user' tool_input='Please provide your spending details (amount in rupees) and confirm if Furniture is the correct category or specify another one.' log='Question: The user wants to add a new expense of buying a bench and needs confirmation about the category, which is Furniture. They also need to provide today\'s date in YYYY-MM-DD format before adding this as an entry into our system tool \'add_expense\'.\nThought: I should first ask for user input on the expense details including amount and confirmation of the category, then request the current date.\nAction: query_user\nAction Input: "Please provide your spending details (amount in rupees) and confirm if Furniture is the correct category or specify another one."'
+2025-08-19 23:29:36,374 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-19 23:29:36,374 [DEBUG] send_request_headers.complete
+2025-08-19 23:29:36,374 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-19 23:29:36,374 [DEBUG] send_request_body.complete
+2025-08-19 23:29:36,374 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-19 23:29:37,368 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/x-ndjson'), (b'Date', b'Tue, 19 Aug 2025 17:59:37 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-19 23:29:37,369 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+2025-08-19 23:29:37,369 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-19 23:29:51,255 [DEBUG] receive_response_body.complete
+2025-08-19 23:29:51,258 [DEBUG] response_closed.started
+2025-08-19 23:29:51,258 [DEBUG] response_closed.complete
+2025-08-19 23:29:51,263 [DEBUG] AGENT ACTION: tool='add_expense' tool_input='{"amount": 381, "category": "Furniture", "date": "2025-07-28"}' log='\nSince I cannot directly ask for user input in this format, let\'s assume the information provided by the user and proceed with adding an expense. If today is not explicitly given, we will use a placeholder date that should be replaced later when actual data comes through or from another system function if available.\nAction: add_expense\nAction Input: {"amount": 381, "category": "Furniture", "date": "2025-07-28"}'
+2025-08-19 23:29:51,268 [ERROR] Error processing request: 2 validation errors for ExpenseCreateInput
+amount
+  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='{"amount": 381, "categor..., "date": "2025-07-28"}', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/float_parsing
+category
+  Field required [type=missing, input_value={'amount': '{"amount": 38... "date": "2025-07-28"}'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+Traceback (most recent call last):
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/app/llm_agent.py", line 363, in get_llm_response
+    response = agent_executor.invoke({"input": enhanced_input})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain/chains/base.py", line 165, in invoke
+    self._call(inputs, run_manager=run_manager)
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain/agents/agent.py", line 1625, in _call
+    next_step_output = self._take_next_step(
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain/agents/agent.py", line 1325, in _take_next_step
+    list(
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain/agents/agent.py", line 1408, in _iter_next_step
+    yield self._perform_agent_action(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain/agents/agent.py", line 1433, in _perform_agent_action
+    observation = tool.run(
+                  ^^^^^^^^^
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain_core/tools/base.py", line 883, in run
+    raise error_to_raise
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain_core/tools/base.py", line 845, in run
+    tool_args, tool_kwargs = self._to_args_and_kwargs(
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain_core/tools/simple.py", line 80, in _to_args_and_kwargs
+    args, kwargs = super()._to_args_and_kwargs(tool_input, tool_call_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain_core/tools/base.py", line 760, in _to_args_and_kwargs
+    tool_input = self._parse_input(tool_input, tool_call_id)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/langchain_core/tools/base.py", line 641, in _parse_input
+    input_args.model_validate({key_: tool_input})
+  File "/Users/shreyuu/VS_Code_projects/Projects/ZenSpend/backend/.venv/lib/python3.11/site-packages/pydantic/main.py", line 705, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 2 validation errors for ExpenseCreateInput
+amount
+  Input should be a valid number, unable to parse string as a number [type=float_parsing, input_value='{"amount": 381, "categor..., "date": "2025-07-28"}', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/float_parsing
+category
+  Field required [type=missing, input_value={'amount': '{"amount": 38... "date": "2025-07-28"}'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
