@@ -133,3 +133,176 @@ amount
 category
   Field required [type=missing, input_value={'amount': '{"amount": 38... "date": "2025-07-28"}'}, input_type=dict]
     For further information visit https://errors.pydantic.dev/2.11/v/missing
+2025-08-20 22:54:55,905 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-20 22:54:55,907 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-20 22:54:55,907 [INFO] Creating ReAct agent with structured prompt
+2025-08-20 22:54:55,908 [INFO] Initialized output fixing parser for expense data
+2025-08-20 22:56:33,352 [INFO] API request: /ask with message: i spent 342 rupees for table on 28 july 2025...
+2025-08-20 22:56:33,353 [INFO] Processing user input: i spent 342 rupees for table on 28 july 2025
+2025-08-20 22:56:33,362 [DEBUG] connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+2025-08-20 22:56:33,364 [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x106875190>
+2025-08-20 22:56:33,364 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 22:56:33,365 [DEBUG] send_request_headers.complete
+2025-08-20 22:56:33,365 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 22:56:33,365 [DEBUG] send_request_body.complete
+2025-08-20 22:56:33,365 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 22:56:36,304 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Wed, 20 Aug 2025 17:26:36 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 22:56:36,350 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/embed "HTTP/1.1 200 OK"
+2025-08-20 22:56:36,354 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 22:56:36,360 [DEBUG] receive_response_body.complete
+2025-08-20 22:56:36,362 [DEBUG] response_closed.started
+2025-08-20 22:56:36,362 [DEBUG] response_closed.complete
+2025-08-20 22:56:36,716 [DEBUG] Retrieved context: i spent 248 days for table on 23 july 2025
+Please confirm your category (e.g., Furniture) or let me know if you would like us to default the category for a table purchase and ensure that today's date ...
+2025-08-20 22:56:36,717 [DEBUG] Enhanced input with context
+2025-08-20 22:56:36,717 [DEBUG] Executing agent with input: Context from previous conversations:
+i spent 248 days for table on 23 july 2025
+Please confirm your category (e.g., Furniture) or let me know if you would like us to default the category for a table purchase and ensure that today's date is provided in YYYY-MM-DD format before I can add this expense as an entry into our system tool 'add_expense'.
+Agent stopped due to iteration limit or time limit.
+
+User input: i spent 342 rupees for table on 28 july 2025
+2025-08-20 22:56:36,731 [WARNING] Error in DebugCallbackHandler.on_chain_start callback: TypeError("'NoneType' object is not subscriptable")
+2025-08-20 22:56:36,770 [DEBUG] connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+2025-08-20 22:56:36,771 [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x1068328d0>
+2025-08-20 22:56:36,771 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 22:56:36,771 [DEBUG] send_request_headers.complete
+2025-08-20 22:56:36,771 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 22:56:36,771 [DEBUG] send_request_body.complete
+2025-08-20 22:56:36,771 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 22:56:52,310 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/x-ndjson'), (b'Date', b'Wed, 20 Aug 2025 17:26:52 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 22:56:52,313 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+2025-08-20 22:56:52,314 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 22:57:08,401 [DEBUG] receive_response_body.complete
+2025-08-20 22:57:08,402 [DEBUG] response_closed.started
+2025-08-20 22:57:08,402 [DEBUG] response_closed.complete
+2025-08-20 22:57:08,412 [DEBUG] AGENT ACTION: tool='query_user' tool_input="Please provide today's date in YYYY-MM-DD format." log='Question: The user wants to add a new expense of purchasing a table and needs confirmation about the category, which is Furniture in this case. They also need to provide today\'s date correctly formatted as YYYY-MM-DD before adding it into our system tool \'add_expense\'.\nThought: I should first ask for user confirmation on the expense details and then format the current date properly for inputting into the add_expense action.\nAction: query_user\nAction Input: "Please provide today\'s date in YYYY-MM-DD format."'
+2025-08-20 22:57:08,424 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 22:57:08,425 [DEBUG] send_request_headers.complete
+2025-08-20 22:57:08,425 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 22:57:08,425 [DEBUG] send_request_body.complete
+2025-08-20 22:57:08,425 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 22:57:09,662 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/x-ndjson'), (b'Date', b'Wed, 20 Aug 2025 17:27:09 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 22:57:09,672 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+2025-08-20 22:57:09,674 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 22:57:24,584 [DEBUG] receive_response_body.complete
+2025-08-20 22:57:24,586 [DEBUG] response_closed.started
+2025-08-20 22:57:24,586 [DEBUG] response_closed.complete
+2025-08-20 22:57:24,594 [DEBUG] AGENT ACTION: tool='_Exception' tool_input="Invalid Format: Missing 'Action Input:' after 'Action:'" log='\nSince I cannot directly ask the user for confirmation through our tools and we need to ensure today\'s date in YYYY-MM-DD format before proceeding with adding an expense. Let me use \'add_expense_tool\' as a workaround, assuming that it will prompt us for necessary details if not provided correctly or fully by the user.\nAction: add_expense_tool(342, "Furniture", "")  # Assuming today is July 28th and I need to get date from tool itself due to limitation in asking directly.'
+2025-08-20 22:57:24,606 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 22:57:24,606 [DEBUG] send_request_headers.complete
+2025-08-20 22:57:24,606 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 22:57:24,606 [DEBUG] send_request_body.complete
+2025-08-20 22:57:24,606 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 22:57:25,155 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/x-ndjson'), (b'Date', b'Wed, 20 Aug 2025 17:27:25 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 22:57:25,156 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+2025-08-20 22:57:25,156 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 22:57:44,585 [DEBUG] receive_response_body.complete
+2025-08-20 22:57:44,590 [DEBUG] response_closed.started
+2025-08-20 22:57:44,591 [DEBUG] response_closed.complete
+2025-08-20 22:57:44,602 [DEBUG] AGENT ACTION: tool='_Exception' tool_input="Invalid Format: Missing 'Action Input:' after 'Action:'" log='\nI\'ll attempt a different approach by providing the current year, month, and day as inputs for today’s date since we cannot ask or get it from user input due to limitations in our tools. I will then add this expense using an appropriate tool that allows adding with specific parameters directly without needing confirmation of details like category if not provided already by the user.\nAction: \nadd_expense({"amount": 342, "category": "", "date": ""}) # Assuming today\'s date is July 28th and I will fill in YYYY-MM-DD format manually afterward as it cannot be directly queried from the user.'
+2025-08-20 22:57:44,608 [DEBUG] AGENT FINISH: return_values={'output': 'Agent stopped due to iteration limit or time limit.'} log=''
+2025-08-20 22:57:44,609 [DEBUG] CHAIN END: {'output': 'Agent stopped due to iteration limit or time limit.'}
+2025-08-20 22:57:44,609 [INFO] Agent response: Agent stopped due to iteration limit or time limit....
+2025-08-20 22:57:44,617 [DEBUG] close.started
+2025-08-20 22:57:44,618 [DEBUG] close.complete
+2025-08-20 22:57:44,618 [DEBUG] connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+2025-08-20 22:57:44,619 [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x106875ad0>
+2025-08-20 22:57:44,619 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 22:57:44,619 [DEBUG] send_request_headers.complete
+2025-08-20 22:57:44,619 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 22:57:44,619 [DEBUG] send_request_body.complete
+2025-08-20 22:57:44,619 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 22:57:45,512 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Wed, 20 Aug 2025 17:27:45 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 22:57:45,513 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/embed "HTTP/1.1 200 OK"
+2025-08-20 22:57:45,514 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 22:57:45,514 [DEBUG] receive_response_body.complete
+2025-08-20 22:57:45,515 [DEBUG] response_closed.started
+2025-08-20 22:57:45,515 [DEBUG] response_closed.complete
+2025-08-20 22:57:45,600 [DEBUG] Saved conversation to memory
+2025-08-20 23:05:04,536 [INFO] API request: /ask with message: I spent ₹342 for table on 28 July 2025...
+2025-08-20 23:05:04,538 [INFO] Processing user input: I spent ₹342 for table on 28 July 2025
+2025-08-20 23:05:04,549 [DEBUG] close.started
+2025-08-20 23:05:04,549 [DEBUG] close.complete
+2025-08-20 23:05:04,549 [DEBUG] connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+2025-08-20 23:05:04,550 [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x106982d50>
+2025-08-20 23:05:04,550 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 23:05:04,550 [DEBUG] send_request_headers.complete
+2025-08-20 23:05:04,550 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 23:05:04,550 [DEBUG] send_request_body.complete
+2025-08-20 23:05:04,550 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 23:05:09,379 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Wed, 20 Aug 2025 17:35:09 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 23:05:09,394 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/embed "HTTP/1.1 200 OK"
+2025-08-20 23:05:09,396 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 23:05:09,397 [DEBUG] receive_response_body.complete
+2025-08-20 23:05:09,399 [DEBUG] response_closed.started
+2025-08-20 23:05:09,399 [DEBUG] response_closed.complete
+2025-08-20 23:05:09,721 [DEBUG] Retrieved context: i spent 342 rupees for table on 28 july 2025
+i spent 248 days for table on 23 july 2025
+Please confirm your category (e.g., Furniture) or let me know if you would like us to default the category for a...
+2025-08-20 23:05:09,722 [DEBUG] Enhanced input with context
+2025-08-20 23:05:09,722 [DEBUG] Executing agent with input: Context from previous conversations:
+i spent 342 rupees for table on 28 july 2025
+i spent 248 days for table on 23 july 2025
+Please confirm your category (e.g., Furniture) or let me know if you would like us to default the category for a table purchase and ensure that today's date is provided in YYYY-MM-DD format before I can add this expense as an entry into our system tool 'add_expense'.
+
+User input: I spent ₹342 for table on 28 July 2025
+2025-08-20 23:05:09,742 [WARNING] Error in DebugCallbackHandler.on_chain_start callback: TypeError("'NoneType' object is not subscriptable")
+2025-08-20 23:05:09,772 [DEBUG] close.started
+2025-08-20 23:05:09,773 [DEBUG] close.complete
+2025-08-20 23:05:09,773 [DEBUG] connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+2025-08-20 23:05:09,774 [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x10691e610>
+2025-08-20 23:05:09,774 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 23:05:09,774 [DEBUG] send_request_headers.complete
+2025-08-20 23:05:09,774 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 23:05:09,774 [DEBUG] send_request_body.complete
+2025-08-20 23:05:09,774 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 23:05:25,742 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/x-ndjson'), (b'Date', b'Wed, 20 Aug 2025 17:35:25 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 23:05:25,745 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+2025-08-20 23:05:25,746 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 23:05:44,066 [DEBUG] receive_response_body.complete
+2025-08-20 23:05:44,103 [DEBUG] response_closed.started
+2025-08-20 23:05:44,106 [DEBUG] response_closed.complete
+2025-08-20 23:05:44,176 [DEBUG] AGENT ACTION: tool='_Exception' tool_input="Invalid Format: Missing 'Action Input:' after 'Action:'" log='Question: The user wants to confirm the category and today\'s date in YYYY-MM-DD format before adding an expense.\nThought: First, we need to ensure that \'Furniture\' is set as the default for a table purchase if no specific category was mentioned by the user. Then, I will provide today\'s date formatted correctly and prompt them accordingly.\nAction: add_expense_tool (assuming Furniture) with amount 342 and date "2025-07-28" as a placeholder for now since we don\'t have the actual category from user input yet, but will confirm it later if needed.'
+2025-08-20 23:05:44,237 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 23:05:44,238 [DEBUG] send_request_headers.complete
+2025-08-20 23:05:44,238 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 23:05:44,238 [DEBUG] send_request_body.complete
+2025-08-20 23:05:44,238 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 23:05:45,023 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/x-ndjson'), (b'Date', b'Wed, 20 Aug 2025 17:35:45 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 23:05:45,028 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+2025-08-20 23:05:45,028 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 23:06:03,769 [DEBUG] receive_response_body.complete
+2025-08-20 23:06:03,772 [DEBUG] response_closed.started
+2025-08-20 23:06:03,773 [DEBUG] response_closed.complete
+2025-08-20 23:06:03,777 [DEBUG] AGENT ACTION: tool='_Exception' tool_input="Invalid Format: Missing 'Action:' after 'Thought:'" log=" I need to correct my approach and first ask about the expense details before adding them using a tool since we don't have all necessary information from user input yet.\nFinal Answer (to be communicated directly): To add your table purchase as an expense, could you please confirm if 'Furniture' is the category for this transaction? Also, to ensure accuracy in our records, can I get today’s date formatted correctly so we may finalize adding it into our system tool later on?\n\n(Note: The above response does not directly answer a question but instead guides towards obtaining necessary information before proceeding with the action. In an actual conversation flow, this would be followed by user input and subsequent actions.)"
+2025-08-20 23:06:03,790 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 23:06:03,790 [DEBUG] send_request_headers.complete
+2025-08-20 23:06:03,790 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 23:06:03,790 [DEBUG] send_request_body.complete
+2025-08-20 23:06:03,790 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 23:06:04,351 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/x-ndjson'), (b'Date', b'Wed, 20 Aug 2025 17:36:04 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 23:06:04,352 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
+2025-08-20 23:06:04,353 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 23:06:22,133 [DEBUG] receive_response_body.complete
+2025-08-20 23:06:22,174 [DEBUG] response_closed.started
+2025-08-20 23:06:22,174 [DEBUG] response_closed.complete
+2025-08-20 23:06:22,190 [DEBUG] AGENT ACTION: tool='_Exception' tool_input="Invalid Format: Missing 'Action:' after 'Thought:'" log=" I need to ask for confirmation of category directly from the user as it was not provided in their initial statement. Then we can proceed with adding today's date once confirmed by the user and use a tool accordingly.\nFinal Answer (to be communicated directly): Could you please specify if 'Furniture' is indeed the correct category for your table purchase on 28 July, or provide another one? Once that’s settled, we can proceed to add this expense using our system tool with today's date as well.\n\n(Note: The above response assumes a direct conversation flow where user input would be required next.)"
+2025-08-20 23:06:22,210 [DEBUG] AGENT FINISH: return_values={'output': 'Agent stopped due to iteration limit or time limit.'} log=''
+2025-08-20 23:06:22,212 [DEBUG] CHAIN END: {'output': 'Agent stopped due to iteration limit or time limit.'}
+2025-08-20 23:06:22,212 [INFO] Agent response: Agent stopped due to iteration limit or time limit....
+2025-08-20 23:06:22,248 [DEBUG] close.started
+2025-08-20 23:06:22,249 [DEBUG] close.complete
+2025-08-20 23:06:22,251 [DEBUG] connect_tcp.started host='127.0.0.1' port=11434 local_address=None timeout=None socket_options=None
+2025-08-20 23:06:22,254 [DEBUG] connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x106995910>
+2025-08-20 23:06:22,255 [DEBUG] send_request_headers.started request=<Request [b'POST']>
+2025-08-20 23:06:22,255 [DEBUG] send_request_headers.complete
+2025-08-20 23:06:22,255 [DEBUG] send_request_body.started request=<Request [b'POST']>
+2025-08-20 23:06:22,256 [DEBUG] send_request_body.complete
+2025-08-20 23:06:22,256 [DEBUG] receive_response_headers.started request=<Request [b'POST']>
+2025-08-20 23:06:23,186 [DEBUG] receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Type', b'application/json; charset=utf-8'), (b'Date', b'Wed, 20 Aug 2025 17:36:23 GMT'), (b'Transfer-Encoding', b'chunked')])
+2025-08-20 23:06:23,191 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/embed "HTTP/1.1 200 OK"
+2025-08-20 23:06:23,191 [DEBUG] receive_response_body.started request=<Request [b'POST']>
+2025-08-20 23:06:23,194 [DEBUG] receive_response_body.complete
+2025-08-20 23:06:23,195 [DEBUG] response_closed.started
+2025-08-20 23:06:23,195 [DEBUG] response_closed.complete
+2025-08-20 23:06:23,549 [DEBUG] Saved conversation to memory
