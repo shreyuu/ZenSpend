@@ -508,3 +508,27 @@ category
 2025-08-21 23:55:54,017 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
 2025-08-21 23:55:54,017 [INFO] Creating ReAct agent with structured prompt
 2025-08-21 23:55:54,018 [INFO] Initialized output fixing parser for expense data
+2025-08-21 23:56:39,149 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-21 23:56:39,150 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-21 23:56:39,151 [INFO] Creating ReAct agent with structured prompt
+2025-08-21 23:56:39,151 [INFO] Initialized output fixing parser for expense data
+2025-08-21 23:56:45,529 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-21 23:56:45,530 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-21 23:56:45,531 [INFO] Creating ReAct agent with structured prompt
+2025-08-21 23:56:45,531 [INFO] Initialized output fixing parser for expense data
+2025-08-21 23:57:14,519 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-21 23:57:14,521 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-21 23:57:14,522 [INFO] Creating ReAct agent with structured prompt
+2025-08-21 23:57:14,523 [INFO] Initialized output fixing parser for expense data
+2025-08-21 23:57:19,521 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-21 23:57:19,528 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-21 23:57:19,529 [INFO] Creating ReAct agent with structured prompt
+2025-08-21 23:57:19,530 [INFO] Initialized output fixing parser for expense data
+2025-08-21 23:57:24,759 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-21 23:57:24,761 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-21 23:57:24,761 [INFO] Creating ReAct agent with structured prompt
+2025-08-21 23:57:24,761 [INFO] Initialized output fixing parser for expense data
+2025-08-21 23:57:30,421 [INFO] Initialized Ollama LLM with model: phi3:mini
+2025-08-21 23:57:30,423 [INFO] Initialized 3 tools: ['add_expense', 'query_expenses', 'add_expense_tool']
+2025-08-21 23:57:30,423 [INFO] Creating ReAct agent with structured prompt
+2025-08-21 23:57:30,424 [INFO] Initialized output fixing parser for expense data

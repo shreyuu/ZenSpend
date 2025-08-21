@@ -29,6 +29,35 @@ export default function ChatBox() {
             // If it looks like an expense, try the direct expense endpoint first
             if (isExpensePattern) {
                 try {
+                    // Use the debug endpoint to parse the expense first
+                    const debugRes = await axios.post("http://localhost:8000/debug/parse-expense", {
+                        text: userMsg,
+                    });
+
+                    if (debugRes.data.success) {
+                        // If parsing succeeded, use the parsed data to add the expense
+                        const parsed = debugRes.data.parsed;
+                        const addRes = await axios.post("http://localhost:8000/add-expense", parsed);
+
+                        if (addRes.data) {
+                            const { amount, category, date } = addRes.data;
+                            // Format date nicely
+                            const formattedDate = new Date(date).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+
+                            setMessages((prev) => [
+                                ...prev,
+                                { role: "assistant", content: `✅ Added expense: ₹${amount} for ${category} on ${formattedDate}` }
+                            ]);
+                            setIsLoading(false);
+                            return;
+                        }
+                    }
+
+                    // Try the direct method as fallback
                     const directResult = await addExpenseDirectly(userMsg);
                     if (directResult) {
                         setMessages((prev) => [
@@ -39,7 +68,6 @@ export default function ChatBox() {
                         return;
                     }
                 } catch (error) {
-                    // Log the error to properly use the variable
                     console.log("Direct expense addition failed, falling back to agent:", error);
                     // Fall through to regular agent if direct method fails
                 }
