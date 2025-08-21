@@ -104,3 +104,17 @@ def search_expenses(query: str):
     )
     answer = qa.run(query)
     return {"response": answer}
+
+
+@router.post("/debug/parse-expense")
+def debug_parse_expense(request: ChatExpenseRequest):
+    """Debug endpoint for testing expense extraction."""
+    try:
+        parsed = extract_expense(request.text)
+        return {
+            "input": request.text,
+            "parsed": parsed,
+            "success": parsed is not None and "amount" in parsed,
+        }
+    except Exception as e:
+        return {"input": request.text, "error": str(e), "success": False}

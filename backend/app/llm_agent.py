@@ -150,7 +150,18 @@ def add_expense(input_json: str) -> str:
     """Add an expense using the input JSON or flexible text."""
     logger.info(f"Adding expense with input: {input_json}")
     try:
-        raw = _parse_flexible_input(input_json)
+        # Parse the input - this is the key fix
+        if isinstance(input_json, str):
+            try:
+                # Try to parse as JSON first
+                raw = json.loads(input_json)
+                logger.debug(f"Successfully parsed JSON input: {raw}")
+            except json.JSONDecodeError:
+                # Fall back to flexible parsing if not valid JSON
+                raw = _parse_flexible_input(input_json)
+        else:
+            raw = input_json
+
         if "date" not in raw or not raw["date"]:
             raw["date"] = str(date.today())
             logger.debug(f"Using default date: {raw['date']}")
