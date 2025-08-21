@@ -29,6 +29,35 @@ export default function ChatBox() {
             // If it looks like an expense, try the direct expense endpoint first
             if (isExpensePattern) {
                 try {
+                    // Use the debug endpoint to parse the expense first
+                    const debugRes = await axios.post("http://localhost:8000/debug/parse-expense", {
+                        text: userMsg,
+                    });
+
+                    if (debugRes.data.success) {
+                        // If parsing succeeded, use the parsed data to add the expense
+                        const parsed = debugRes.data.parsed;
+                        const addRes = await axios.post("http://localhost:8000/add-expense", parsed);
+
+                        if (addRes.data) {
+                            const { amount, category, date } = addRes.data;
+                            // Format date nicely
+                            const formattedDate = new Date(date).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+
+                            setMessages((prev) => [
+                                ...prev,
+                                { role: "assistant", content: `✅ Added expense: ₹${amount} for ${category} on ${formattedDate}` }
+                            ]);
+                            setIsLoading(false);
+                            return;
+                        }
+                    }
+
+                    // Try the direct method as fallback
                     const directResult = await addExpenseDirectly(userMsg);
                     if (directResult) {
                         setMessages((prev) => [
@@ -39,7 +68,6 @@ export default function ChatBox() {
                         return;
                     }
                 } catch (error) {
-                    // Log the error to properly use the variable
                     console.log("Direct expense addition failed, falling back to agent:", error);
                     // Fall through to regular agent if direct method fails
                 }
@@ -106,24 +134,46 @@ export default function ChatBox() {
     // Direct expense addition method
     const addExpenseDirectly = async (expenseText) => {
         try {
+            // Try the chat-expense endpoint first
             const res = await axios.post("http://localhost:8000/chat-expense", {
                 text: expenseText,
             });
 
-            if (!res.data || !res.data.amount) {
-                return null;
+            if (res.data && res.data.amount) {
+                const { amount, category, date, description } = res.data;
+
+                // Format date nicely
+                const formattedDate = new Date(date).toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                return `✅ Added expense: ₹${amount} for ${category || 'Miscellaneous'} on ${formattedDate}${description ? ` (${description})` : ''}`;
             }
 
-            const { amount, category, date, description } = res.data;
+            // If that fails, try the fallback method using regular add-expense endpoint
+            const expenseMatch = expenseText.match(/(\d+)(?:\s+(?:rupees|₹|rs\.?))?(?:\s+(?:for|on)\s+)?(.*?)(?:\s+on\s+(.*))?$/i);
 
-            // Format date nicely
-            const formattedDate = new Date(date).toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
+            if (expenseMatch) {
+                const amount = expenseMatch[1];
+                const categoryText = expenseMatch[2] || "Miscellaneous";
+                const dateText = expenseMatch[3] || "today";
 
-            return `✅ Added expense: ₹${amount} for ${category || 'Miscellaneous'} on ${formattedDate}${description ? ` (${description})` : ''}`;
+                // Add the expense via the regular endpoint
+                const addRes = await axios.post("http://localhost:8000/add-expense", {
+                    amount: parseFloat(amount),
+                    category: categoryText.trim().charAt(0).toUpperCase() + categoryText.trim().slice(1),
+                    note: expenseText,
+                    date: dateText === "today" ? new Date().toISOString().split('T')[0] : dateText
+                });
+
+                if (addRes.data) {
+                    return `✅ Added expense: ₹${amount} for ${categoryText}`;
+                }
+            }
+
+            return null;
         } catch (error) {
             console.error("Direct expense addition error:", error);
             return null;
